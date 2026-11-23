@@ -1,6 +1,14 @@
 import pandas as pd
 from sqlalchemy import create_engine
+import logging
 from project_config.etlconfig import *
+
+logging.basicConfig(
+    filename='application_log/etlprocess.log',
+    filemode='w',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def read_from_file(file_path, file_type):
     if file_type == "csv":
@@ -12,4 +20,13 @@ def read_from_file(file_path, file_type):
     else:
         raise ValueError(f"Unsupported file type: {file_type}")
     return df
-#df.to_sql("stag_product", mysql_conn, if_exists='replace', index=False)
+
+def download_file_from_linux_server():
+    logger.info("File download from Linux Server has started...")
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh_client.connect(LINUX_HOSTNAME, username = LINUX_USERNAME, password = LINUX_PASSWORD)
+    sftp = ssh_client.open_sftp()
+    sftp.get(REMOTE_FILE_PATH,LOCAL_FILE_PATH)
+    sftp.close()
+    logger.info('File download from Linux Server has completed...')

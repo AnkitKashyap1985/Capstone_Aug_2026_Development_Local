@@ -1,6 +1,5 @@
 import pandas as pd
 from sqlalchemy import create_engine
-
 from common_utilities.utilities import *
 from project_config.etlconfig import *
 
